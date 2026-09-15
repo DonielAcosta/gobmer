@@ -13,7 +13,25 @@ const ociAgent = new https.Agent({
   minVersion: 'TLSv1',
   maxVersion: 'TLSv1.3',
   secureOptions: cryptoConstants.SSL_OP_LEGACY_SERVER_CONNECT,
+  timeout: 8000,
 })
+
+function sendProxyError(res, err) {
+  if (!res || res.headersSent || typeof res.writeHead !== 'function') return
+  try {
+    res.writeHead(502, { 'Content-Type': 'application/json; charset=utf-8' })
+    res.end(
+      JSON.stringify({
+        code: 'oci_unreachable',
+        message:
+          'No se pudo conectar con oci.merida.gob.ve (DNS/red). La app usará datos locales.',
+        detail: err.code || err.message,
+      })
+    )
+  } catch {
+    /* ignore broken socket */
+  }
+}
 
 export default defineConfig({
   plugins: [react()],
@@ -24,22 +42,21 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
         agent: ociAgent,
-        timeout: 30000,
+        timeout: 10000,
+        proxyTimeout: 10000,
         rewrite: (path) => path.replace(/^\/oci-api/, '/wp-json/wp/v2'),
         configure: (proxy) => {
           proxy.on('error', (err, _req, res) => {
-            console.error('[oci-proxy]', err.code || err.message)
-            if (res && !res.headersSent) {
-              res.writeHead(502, { 'Content-Type': 'application/json' })
-              res.end(
-                JSON.stringify({
-                  code: 'oci_unreachable',
-                  message:
-                    'No se pudo conectar con oci.merida.gob.ve (DNS/red/TLS). Revisa tu conexión e intenta de nuevo.',
-                  detail: err.code || err.message,
-                })
+            const code = err.code || err.message
+            // Evitar spam: un log corto basta; el cliente ya hace fallback.
+            if (code === 'EAI_AGAIN' || code === 'ENOTFOUND') {
+              console.warn(
+                '[oci-proxy] DNS no resuelve oci.merida.gob.ve — usando fallback local'
               )
+            } else {
+              console.warn('[oci-proxy]', code)
             }
+            sendProxyError(res, err)
           })
         },
       },

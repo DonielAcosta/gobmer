@@ -5,6 +5,8 @@ import { Home } from './pages/Home.jsx'
 import { NoticiasPage } from './pages/NoticiasPage.jsx'
 import { PostDetail } from './pages/PostDetail.jsx'
 import { SecretariaDetail } from './pages/SecretariaDetail.jsx'
+import { PlanGobierno } from './pages/PlanGobierno.jsx'
+import { ResenaHistorica } from './pages/ResenaHistorica.jsx'
 
 export default function App() {
   return (
@@ -13,6 +15,8 @@ export default function App() {
       <main className="layout-main">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/plan-de-gobierno" element={<PlanGobierno />} />
+          <Route path="/resena-historica" element={<ResenaHistorica />} />
           <Route path="/noticias" element={<NoticiasPage />} />
           <Route path="/noticias/:id" element={<PostDetail />} />
           <Route path="/secretarias/:slug" element={<SecretariaDetail />} />

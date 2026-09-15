@@ -19,15 +19,21 @@ https://oci.merida.gob.ve/wp-json/wp/v2
 - React Router
 - CSS con variables de marca
 
-## Paleta (logo M de Mérida)
+## Paleta (Manual de Identidad)
 
 | Token | Hex | Uso |
 |-------|-----|-----|
-| Navy | `#0a1f3d` | Fondo institucional |
-| Blue | `#1a3a6b` | Texto / estructura |
-| Sky | `#4eb3e8` | Acento azul del logo |
-| Green | `#008c45` | Acento verde del logo |
-| Red | `#e30613` | Estrella / acento rojo |
+| Azul | `#5AA5CC` | Primario institucional |
+| Verde | `#15692A` | Primario institucional |
+| Rojo | `#FC0F18` | Primario institucional |
+| Navy | `#172840` | Texto / fondos |
+
+## Tipografía (Manual)
+
+| Uso | Oficial | Web |
+|-----|---------|-----|
+| Títulos / UI | Corbel Bold | Georama (+ Corbel/Cantarell si están) |
+| “Mérida” | Billead Dandy | Great Vibes |
 
 ## Scripts
 
@@ -38,6 +44,11 @@ npm run dev
 ```
 
 En desarrollo, Vite hace proxy de `/oci-api` → OCI para evitar CORS.
+
+Si ves `EAI_AGAIN` / `oci-proxy`, el DNS de `oci.merida.gob.ve` no está
+resolviendo (falla de red o de la zona `merida.gob.ve`). La app cae a datos
+locales (secretarías) y muestra aviso en noticias. Reinicia `npm run dev`
+cuando el DNS vuelva.
 
 ## Assets locales
 
@@ -76,6 +87,7 @@ public/
 | Ruta | Vista |
 |------|--------|
 | `/` | Home (hero, secretarías, noticias) |
+| `/plan-de-gobierno` | Plan de Gobierno (contenido local) |
 | `/noticias` | Listado paginado |
 | `/noticias/:id` | Detalle de noticia |
 | `/secretarias/:slug` | Detalle de secretaría |

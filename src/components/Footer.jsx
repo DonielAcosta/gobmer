@@ -6,21 +6,20 @@ export function Footer() {
       <div className="container footer-grid">
         <div>
           <img
-            className="footer-logo"
-            src={ASSETS.logoHorizontal}
-            alt="Gobernación del Estado Bolivariano de Mérida"
-            width={220}
-            height={90}
+            className="footer-mark"
+            src={ASSETS.logoMark}
+            alt=""
+            width={88}
+            height={96}
           />
+          <p className="footer-kicker">Gobernación del Estado Bolivariano de</p>
           <p className="footer-script">Mérida</p>
-          <p className="footer-brand">
-            GOB<span>ME</span>
-          </p>
-          <p>Gobernación del Estado Bolivariano de Mérida</p>
           <p>RIF G-20000156-9</p>
         </div>
         <div className="footer-links">
           <a href="/#secretarias">Secretarías</a>
+          <a href="/plan-de-gobierno">Plan de Gobierno</a>
+          <a href="/resena-historica">Reseña Histórica</a>
           <a href="/noticias">Noticias</a>
           <a href="/#enlaces">Enlaces</a>
           <a href={SOCIAL.youtube} target="_blank" rel="noopener noreferrer">

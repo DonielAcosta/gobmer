@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
-import { NavLink } from 'react-router-dom'
-import { ASSETS, SOCIAL } from '../api/config.js'
+import { useEffect, useId, useRef, useState } from 'react'
+import { Link, NavLink } from 'react-router-dom'
+import { ASSETS, NAV, SOCIAL } from '../api/config.js'
 
 function IconYoutube() {
   return (
@@ -18,8 +18,59 @@ function IconInstagram() {
   )
 }
 
+function Chevron({ className = 'nav-chevron' }) {
+  return (
+    <svg className={className} viewBox="0 0 12 8" aria-hidden="true">
+      <path
+        d="M1 1.5 6 6.5 11 1.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function NavItemLink({ item, onNavigate, role = 'menuitem' }) {
+  if (item.external === false) {
+    if (item.href.startsWith('/#')) {
+      return (
+        <a href={item.href} role={role} onClick={onNavigate}>
+          {item.label}
+        </a>
+      )
+    }
+
+    return (
+      <Link to={item.href} role={role} onClick={onNavigate}>
+        {item.label}
+      </Link>
+    )
+  }
+
+  return (
+    <a
+      href={item.href}
+      role={role}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={onNavigate}
+    >
+      {item.label}
+    </a>
+  )
+}
+
 export function Header() {
   const [scrolled, setScrolled] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [quienesOpen, setQuienesOpen] = useState(false)
+  const [lineasOpen, setLineasOpen] = useState(false)
+  const dropdownRef = useRef(null)
+  const dropdownId = useId()
+  const submenuId = useId()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12)
@@ -28,44 +79,166 @@ export function Header() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  useEffect(() => {
+    const onDocClick = (e) => {
+      if (!dropdownRef.current?.contains(e.target)) {
+        setQuienesOpen(false)
+        setLineasOpen(false)
+      }
+    }
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        setQuienesOpen(false)
+        setLineasOpen(false)
+        setMenuOpen(false)
+      }
+    }
+    document.addEventListener('click', onDocClick)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('click', onDocClick)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [])
+
+  const closeMenus = () => {
+    setQuienesOpen(false)
+    setLineasOpen(false)
+    setMenuOpen(false)
+  }
+
   return (
     <>
       <div className="brand-ribbon" aria-hidden="true" />
       <header className={`site-header${scrolled ? ' is-scrolled' : ''}`}>
         <div className="header-inner">
-          <NavLink to="/" className="brand" end>
+          <NavLink to="/" className="brand" end onClick={closeMenus}>
             <img
               className="brand-logo"
               src={ASSETS.logoHorizontal}
               alt="Gobernación del Estado Bolivariano de Mérida"
-              width={200}
-              height={82}
+              width={280}
+              height={115}
             />
-            <span className="brand-text">
-              <span className="brand-mark">
-                GOB<span>ME</span>
-              </span>
-              <span className="brand-sub">
-                Gobernación del Estado Bolivariano de Mérida
-              </span>
-            </span>
           </NavLink>
-          <nav className="nav" aria-label="Principal">
+
+          <nav
+            id="main-menu"
+            className={`main-nav${menuOpen ? ' is-open' : ''}`}
+            aria-label="Principal"
+          >
             <NavLink
               to="/"
               end
-              className={({ isActive }) => (isActive ? 'active' : undefined)}
+              className={({ isActive }) =>
+                `main-nav-link${isActive ? ' is-active' : ''}`
+              }
+              onClick={closeMenus}
             >
               Inicio
             </NavLink>
-            <a href="/#secretarias">Secretarías</a>
+
+            <div
+              className={`nav-dropdown${quienesOpen ? ' is-open' : ''}`}
+              ref={dropdownRef}
+            >
+              <button
+                type="button"
+                className="main-nav-link nav-dropdown-trigger"
+                aria-expanded={quienesOpen}
+                aria-controls={dropdownId}
+                onClick={() => {
+                  setQuienesOpen((v) => !v)
+                  setLineasOpen(false)
+                }}
+              >
+                Quiénes Somos
+                <Chevron />
+              </button>
+              <div id={dropdownId} className="nav-dropdown-panel" role="menu">
+                {NAV.quienesSomos.map((item) => {
+                  if (item.children?.length) {
+                    return (
+                      <div
+                        key={item.label}
+                        className={`nav-submenu${lineasOpen ? ' is-open' : ''}`}
+                        onMouseEnter={() => setLineasOpen(true)}
+                        onMouseLeave={() => setLineasOpen(false)}
+                      >
+                        <button
+                          type="button"
+                          className="nav-submenu-trigger"
+                          aria-expanded={lineasOpen}
+                          aria-controls={submenuId}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setLineasOpen((v) => !v)
+                          }}
+                        >
+                          <span>{item.label}</span>
+                          <Chevron className="nav-chevron nav-chevron-side" />
+                        </button>
+                        <div
+                          id={submenuId}
+                          className="nav-submenu-panel"
+                          role="menu"
+                        >
+                          <a
+                            href={item.href}
+                            role="menuitem"
+                            className="nav-submenu-overview"
+                            onClick={closeMenus}
+                          >
+                            Ver las 7 líneas
+                          </a>
+                          {item.children.map((child) => (
+                            <Link
+                              key={child.href}
+                              to={child.href}
+                              role="menuitem"
+                              onClick={closeMenus}
+                            >
+                              {child.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  }
+
+                  return (
+                    <NavItemLink
+                      key={item.label}
+                      item={item}
+                      onNavigate={closeMenus}
+                    />
+                  )
+                })}
+              </div>
+            </div>
+
             <NavLink
               to="/noticias"
-              className={({ isActive }) => (isActive ? 'active' : undefined)}
+              className={({ isActive }) =>
+                `main-nav-link${isActive ? ' is-active' : ''}`
+              }
+              onClick={closeMenus}
             >
               Noticias
             </NavLink>
-            <a href="/#enlaces">Enlaces</a>
+
+            <a
+              className="main-nav-cta"
+              href={NAV.contrataciones}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={closeMenus}
+            >
+              Contrataciones
+            </a>
+          </nav>
+
+          <div className="header-tools">
             <div className="nav-social">
               <a
                 href={SOCIAL.youtube}
@@ -84,7 +257,19 @@ export function Header() {
                 <IconInstagram />
               </a>
             </div>
-          </nav>
+            <button
+              type="button"
+              className={`nav-toggle${menuOpen ? ' is-open' : ''}`}
+              aria-expanded={menuOpen}
+              aria-controls="main-menu"
+              onClick={() => setMenuOpen((v) => !v)}
+            >
+              <span className="sr-only">Menú</span>
+              <span />
+              <span />
+              <span />
+            </button>
+          </div>
         </div>
       </header>
     </>

@@ -25,13 +25,188 @@ export const SOCIAL = {
   oci: 'https://oci.merida.gob.ve/',
 }
 
+/** Menú principal (igual al portal oficial) */
+export const NAV = {
+  contrataciones: 'https://gobernacion.merida.gob.ve/Contrataciones',
+  quienesSomos: [
+    {
+      label: 'Plan de Gobierno',
+      href: '/plan-de-gobierno',
+      external: false,
+    },
+    {
+      label: 'Reseña Histórica',
+      href: '/resena-historica',
+      external: false,
+    },
+    {
+      label: '7 Líneas de Transformación',
+      href: '/#secretarias',
+      external: false,
+      children: [
+        {
+          label: 'Secretaría para la Transformación Económica',
+          href: '/secretarias/secretaria-para-la-transformacion-economica',
+        },
+        {
+          label:
+            'Secretaría para la Transformación de la Ciudad Humana para el Buen Vivir',
+          href: '/secretarias/transformacion-de-la-ciudad-humana-para-el-buen-vivir',
+        },
+        {
+          label:
+            'Secretaría para la Transformación de la Seguridad Ciudadana, Defensa y Paz',
+          href: '/secretarias/secretaria-para-la-transformacion-de-la-seguridad-ciudadana-defensa-y-paz',
+        },
+        {
+          label: 'Secretaría para la Transformación Social',
+          href: '/secretarias/secretaria-para-la-transformacion-social',
+        },
+        {
+          label:
+            'Secretaría para la Transformación Política y del Poder Popular',
+          href: '/secretarias/secretaria-para-la-transformacion-politica-y-del-poder-popular',
+        },
+        {
+          label:
+            'Secretaría para la Transformación del Ecosocialismo, Ciencia y Tecnología',
+          href: '/secretarias/secretaria-para-la-transformacion-del-ecosocialismo-ciencia-y-tecnologia',
+        },
+        {
+          label:
+            'Secretaría para la Transformación Geopolítica de Paz e Integración',
+          href: '/secretarias/secretaria-para-la-transformacion-geopolitica-de-paz-e-integracion',
+        },
+      ],
+    },
+  ],
+}
+
+/** Contenido local — Reseña Histórica */
+export const RESENA_HISTORICA = {
+  title: 'Reseña Histórica',
+  subtitle: 'Gobernación del Estado Bolivariano de Mérida',
+  lead:
+    'Desde su fundación en el siglo XVI, Mérida ha tejido una identidad andina de fe, cultura, universidad y servicio público. Esta reseña recoge hitos que dan forma al Estado Bolivariano de Mérida y a su compromiso con el pueblo.',
+  tagline:
+    '7 líneas de transformación alineadas con la necesidad del pueblo merideño para su desarrollo sustentable',
+  milestones: [
+    {
+      year: '1558',
+      title: 'Fundación de Mérida',
+      text: 'El 9 de octubre, el capitán Juan Rodríguez Suárez funda la ciudad cerca de la Laguna de Urao, en honor a Mérida de Extremadura (España).',
+    },
+    {
+      year: '1559',
+      title: 'Santiago de los Caballeros de Mérida',
+      text: 'Juan de Maldonado traslada y consolida la ciudad en la meseta de los Tatuyes, entre los ríos Chama, Albarregas y Mucujún, con el nombre que la identifica hasta hoy.',
+    },
+    {
+      year: '1622',
+      title: 'Gobernación de Mérida',
+      text: 'El territorio asciende a gobernación, consolidando una administración propia en los Andes venezolanos bajo dependencia de la Real Audiencia.',
+    },
+    {
+      year: '1810–1830',
+      title: 'Independencia y provincia',
+      text: 'Mérida participa del proceso emancipador y se organiza como provincia en el nacimiento de la República de Venezuela.',
+    },
+    {
+      year: '1899–1909',
+      title: 'Estado Mérida',
+      text: 'Queda definido el marco territorial del estado Mérida, base de la entidad federal que conocemos en la actualidad.',
+    },
+    {
+      year: 'Hoy',
+      title: 'Estado Bolivariano de Mérida',
+      text: 'La Gobernación impulsa siete líneas de transformación para el desarrollo sustentable, la paz y el buen vivir del pueblo merideño.',
+    },
+  ],
+  infografias: [
+    {
+      src: '/resena/infografia-1.png',
+      alt: 'Infografía — Fundación de Mérida (parte 1)',
+    },
+    {
+      src: '/resena/infografia-2.png',
+      alt: 'Infografía — Fundación de Mérida (parte 2)',
+    },
+  ],
+}
+
+/** Contenido local — Plan de Gobierno */
+export const PLAN_GOBIERNO = {
+  title: 'Plan de Gobierno',
+  subtitle: 'Gobernación del Estado Bolivariano de Mérida',
+  lead:
+    'La Administración Pública está al servicio del Pueblo y se fundamenta en los principios de honestidad, participación, celeridad, eficacia, eficiencia, transparencia, rendición de cuentas y responsabilidad en el ejercicio de la función pública, con sometimiento pleno a la ley y al derecho.',
+  tagline:
+    '7 líneas de transformación alineadas con la necesidad del pueblo merideño para su desarrollo sustentable',
+  gobernador: {
+    name: 'Arnaldo Sánchez',
+    role: 'Gobernador del Estado Bolivariano de Mérida',
+    image: '/plan/gobernador.jpg',
+  },
+  lineas: [
+    {
+      id: 1,
+      title: 'Transformación Económica',
+      image: '/plan/linea-1.png',
+      pdf: '/plan/linea-1.pdf',
+      slug: 'secretaria-para-la-transformacion-economica',
+    },
+    {
+      id: 2,
+      title: 'Transformación de la Ciudad Humana para el Buen Vivir',
+      image: '/plan/linea-2.png',
+      pdf: '/plan/linea-2.pdf',
+      slug: 'transformacion-de-la-ciudad-humana-para-el-buen-vivir',
+    },
+    {
+      id: 3,
+      title: 'Transformación de la Seguridad Ciudadana, Defensa y Paz',
+      image: '/plan/linea-3.png',
+      pdf: '/plan/linea-3.pdf',
+      slug: 'secretaria-para-la-transformacion-de-la-seguridad-ciudadana-defensa-y-paz',
+    },
+    {
+      id: 4,
+      title: 'Transformación Social',
+      image: '/plan/linea-4.png',
+      pdf: '/plan/linea-4.pdf',
+      slug: 'secretaria-para-la-transformacion-social',
+    },
+    {
+      id: 5,
+      title: 'Transformación Política y del Poder Popular',
+      image: '/plan/linea-5.png',
+      pdf: '/plan/linea-5.pdf',
+      slug: 'secretaria-para-la-transformacion-politica-y-del-poder-popular',
+    },
+    {
+      id: 6,
+      title: 'Transformación del Ecosocialismo, Ciencia y Tecnología',
+      image: '/plan/linea-6.png',
+      pdf: '/plan/linea-6.pdf',
+      slug: 'secretaria-para-la-transformacion-del-ecosocialismo-ciencia-y-tecnologia',
+    },
+    {
+      id: 7,
+      title: 'Transformación Geopolítica de Paz e Integración',
+      image: '/plan/linea-7.png',
+      pdf: '/plan/linea-7.pdf',
+      slug: 'secretaria-para-la-transformacion-geopolitica-de-paz-e-integracion',
+    },
+  ],
+}
+
 /** Gaceta destacada (sitio oficial) */
 export const GACETA = {
   label: 'Descargar Gaceta Oficial 6119',
   href: 'https://gobernacion.merida.gob.ve/wp-content/uploads/2025/08/GAC.6119.DEC_.017.-CREACION-DE-LAS-SECRETARIAS-RECTORAS.pdf',
 }
 
-/** Enlaces institucionales — logos desde gobernacion.merida.gob.ve */
+/** Enlaces institucionales — logos visibles en gobernacion.merida.gob.ve */
 export const ENLACES = [
   {
     id: 'corposalud',
@@ -41,32 +216,18 @@ export const ENLACES = [
     icon: '/enlaces/corposalud.png',
   },
   {
-    id: 'desarrollo-social',
-    title: 'Desarrollo Social',
-    description: 'Secretaría de Desarrollo Social',
-    href: 'https://desarrollosocial.merida.gob.ve/',
-    icon: '/enlaces/desarrollo-social.png',
+    id: 'iahula',
+    title: 'IAHULA',
+    description: 'Instituto Autónomo Hospital Universitario de Los Andes',
+    href: 'https://iahula.merida.gob.ve/',
+    icon: '/enlaces/iahula.png',
   },
   {
     id: 'teleinformatica',
     title: 'Teleinformática',
-    description: 'D.E.P.P. Teleinformática',
+    description: 'Dirección Estadal del Poder Popular de Teleinformática',
     href: 'https://teleinformatica.merida.gob.ve/',
     icon: '/enlaces/teleinformatica.png',
-  },
-  {
-    id: 'ibime',
-    title: 'IBIME',
-    description: 'Instituto Bolivariano de la Mujer del Estado Mérida',
-    href: 'https://corposalud.merida.gob.ve/',
-    icon: '/enlaces/ibime.png',
-  },
-  {
-    id: 'oci',
-    title: 'OCI',
-    description: 'Oficina de Comunicación Institucional',
-    href: 'https://oci.merida.gob.ve/',
-    icon: '/enlaces/oci.png',
   },
   {
     id: 'auditoria-interna',
@@ -76,46 +237,11 @@ export const ENLACES = [
     icon: '/enlaces/auditoria-interna.png',
   },
   {
-    id: 'iahula',
-    title: 'IAHULA',
-    description: 'Instituto Autónomo Hospital Universitario de Los Andes',
-    href: 'https://iahula.merida.gob.ve/',
-    icon: '/enlaces/iahula.png',
-  },
-  {
     id: 'pgem',
     title: 'Procuraduría (PGEM)',
     description: 'Procuraduría General del Estado Mérida',
     href: 'https://pgemweb.merida.gob.ve/gooo.php',
     icon: '/enlaces/pgem.jpg',
-  },
-  {
-    id: 'fomdes',
-    title: 'FOMDES',
-    description: 'Fondo Merideño para el Desarrollo Económico Sustentable',
-    href: 'https://gobernacion.merida.gob.ve/',
-    icon: '/enlaces/fomdes.png',
-  },
-  {
-    id: 'iaanem',
-    title: 'IAANEM',
-    description: 'Instituto Autónomo de Alimentación y Nutrición del Estado Mérida',
-    href: 'https://iaanem.merida.gob.ve/',
-    icon: '/enlaces/iaanem.png',
-  },
-  {
-    id: 'agem',
-    title: 'Archivo General (AGEM)',
-    description: 'Archivo General del Estado Mérida',
-    href: 'https://archivogeneral.merida.gob.ve/',
-    icon: '/enlaces/agem.png',
-  },
-  {
-    id: 'oam',
-    title: 'OAM',
-    description: 'Orquesta Andina de Mérida',
-    href: 'https://oam.merida.gob.ve/',
-    icon: '/enlaces/oam.jpg',
   },
   {
     id: 'immfa',
@@ -127,9 +253,16 @@ export const ENLACES = [
   {
     id: 'gestion-comunicacional',
     title: 'Gestión Comunicacional',
-    description: 'Dirección de Gestión Comunicacional',
+    description: 'Dirección Estadal del Poder Popular de Gestión Comunicacional',
     href: 'https://oci.merida.gob.ve/',
     icon: '/enlaces/gestion-comunicacional.png',
+  },
+  {
+    id: 'iaanem',
+    title: 'IAANEM',
+    description: 'Instituto Autónomo de Alimentación y Nutrición del Estado Mérida',
+    href: 'https://iaanem.merida.gob.ve/',
+    icon: '/enlaces/iaanem.png',
   },
   {
     id: 'fomficc',
@@ -140,31 +273,24 @@ export const ENLACES = [
   },
   {
     id: 'funnjomer',
-    title: 'Fundación del Niño',
-    description: 'Fundación del Niño del Estado Mérida',
+    title: 'FUNNJOMER',
+    description: 'Fundación Niños, Niñas y Jóvenes de los Andes Merideños',
     href: 'https://fundaciondelnino.merida.gob.ve/',
     icon: '/enlaces/funnjomer.png',
   },
   {
     id: 'imdafef',
     title: 'IMDAFEF',
-    description: 'Instituto Merideño del Deporte',
+    description: 'Instituto Merideño de Deporte, Actividad Física y Educación Física',
     href: 'https://www.imdafef.merida.gob.ve/',
     icon: '/enlaces/imdafef.png',
   },
   {
     id: 'cenacadem',
     title: 'CENACADEM',
-    description: 'Centro Nacional Académico',
+    description: 'Centro Nacional de Ciencias Aplicadas al Deporte del Estado Mérida',
     href: 'http://cenacadem.merida.gob.ve/',
     icon: '/enlaces/cenacadem.png',
-  },
-  {
-    id: 'consultoria',
-    title: 'Consultoría Jurídica',
-    description: 'Consultoría Jurídica del Estado Mérida',
-    href: 'https://consultoria.merida.gob.ve/',
-    icon: '/enlaces/consultoria.png',
   },
 ]
 
@@ -244,21 +370,29 @@ export const SECRETARIA_META = {
 
 /** Datos locales si OCI no responde (DNS/red) */
 export function getFallbackSecretarias() {
-  return SECRETARIA_IDS.map((id) => {
-    const meta = SECRETARIA_META[id]
-    return {
-      id,
-      slug: meta.slug,
-      title: meta.title,
-      excerpt: meta.excerpt,
-      content: `<p>${meta.excerpt}</p>`,
-      link: `https://gobernacion.merida.gob.ve/${meta.slug}/`,
-      short: meta.short,
-      accent: meta.accent,
-      icon: meta.icon,
-      offline: true,
-    }
-  })
+  try {
+    return SECRETARIA_IDS.map((id) => {
+      const meta = SECRETARIA_META[id] || {}
+      return {
+        id,
+        slug: meta.slug || `secretaria-${id}`,
+        title: meta.title || 'Secretaría',
+        excerpt: meta.excerpt || '',
+        content: `<p>${meta.excerpt || ''}</p>`,
+        link: meta.slug ? `https://gobernacion.merida.gob.ve/${meta.slug}/` : '#',
+        short: meta.short || '',
+        accent: meta.accent || 'var(--brand-blue)',
+        icon: meta.icon || null,
+        intro: [meta.excerpt].filter(Boolean),
+        entities: [],
+        relatedNews: [],
+        offline: true,
+      }
+    })
+  } catch (err) {
+    console.warn('[config] Error al generar fallback de secretarías:', err)
+    return []
+  }
 }
 
 export const PER_PAGE = 8

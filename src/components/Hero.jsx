@@ -11,19 +11,14 @@ export function Hero() {
       <div className="hero-media" aria-hidden="true" />
       <div className="container hero-content">
         <img
-          className="hero-mark"
-          src={ASSETS.logoMark}
-          alt="Emblema de la Gobernación del Estado Bolivariano de Mérida"
-          width={120}
-          height={120}
+          className="hero-logo"
+          src={ASSETS.logoHorizontal}
+          alt="Gobernación del Estado Bolivariano de Mérida"
+          width={420}
+          height={172}
         />
+        <p className="hero-kicker">Gobernación del Estado Bolivariano de</p>
         <p className="hero-script">Mérida</p>
-        <p className="hero-brand">
-          GOB<span>ME</span>
-        </p>
-        <h1 className="hero-title">
-          Gobernación del Estado Bolivariano de Mérida
-        </h1>
         <p className="hero-lead">
           Siete líneas de transformación alineadas con la necesidad del pueblo
           merideño para su desarrollo sustentable.

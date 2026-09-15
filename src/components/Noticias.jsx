@@ -15,7 +15,7 @@ export function Noticias({ limit = 8, showMore = true }) {
     let cancelled = false
 
     getPosts(1)
-      .then(({ posts: data, offline: isOffline }) => {z``
+      .then(({ posts: data, offline: isOffline }) => {
         if (cancelled) return
         setPosts(data.slice(0, limit))
         setOffline(Boolean(isOffline))

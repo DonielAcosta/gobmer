@@ -7,6 +7,7 @@ import { Loader } from './Loader.jsx'
 export function Secretarias() {
   const [items, setItems] = useState([])
   const [error, setError] = useState(null)
+  const [offline, setOffline] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -14,7 +15,9 @@ export function Secretarias() {
 
     getSecretarias()
       .then((data) => {
-        if (!cancelled) setItems(data)
+        if (cancelled) return
+        setItems(data)
+        setOffline(Boolean(data?.[0]?.offline))
       })
       .catch((err) => {
         if (!cancelled) {
@@ -33,7 +36,7 @@ export function Secretarias() {
     }
   }, [])
 
-  useReveal(loading, items.length)
+  useReveal(loading, items.length, offline)
 
   return (
     <section className="section secretarias" id="secretarias">
@@ -49,6 +52,12 @@ export function Secretarias() {
 
         {loading ? <Loader label="Cargando secretarías…" /> : null}
         {error ? <div className="error-box">{error}</div> : null}
+        {!loading && !error && offline ? (
+          <div className="error-box">
+            OCI no responde por DNS/red. Se muestran las secretarías con datos
+            locales hasta que vuelva oci.merida.gob.ve.
+          </div>
+        ) : null}
 
         {!loading && !error ? (
           <div className="secretarias-grid">

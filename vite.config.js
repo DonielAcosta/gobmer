@@ -4,62 +4,168 @@ import https from 'node:https'
 import { constants as cryptoConstants } from 'node:crypto'
 
 /**
- * OCI a veces negocia TLS antiguo; OpenSSL 3 / Node 20 lo rechaza.
- * Este agent permite handshake legacy y evita EPROTO en el proxy de Vite.
+ * OCI cierra sockets keep-alive, a veces corta el TLS y el certificado
+ * puede estar vencido. Proxy propio con TLS laxo + reintentos.
  */
 const ociAgent = new https.Agent({
-  keepAlive: true,
+  keepAlive: false,
   rejectUnauthorized: false,
   minVersion: 'TLSv1',
   maxVersion: 'TLSv1.3',
   secureOptions: cryptoConstants.SSL_OP_LEGACY_SERVER_CONNECT,
-  timeout: 8000,
 })
 
-function sendProxyError(res, err) {
-  if (!res || res.headersSent || typeof res.writeHead !== 'function') return
-  try {
-    res.writeHead(502, { 'Content-Type': 'application/json; charset=utf-8' })
-    res.end(
-      JSON.stringify({
-        code: 'oci_unreachable',
-        message:
-          'No se pudo conectar con oci.merida.gob.ve (DNS/red). La app usará datos locales.',
-        detail: err.code || err.message,
-      })
+const TRANSIENT = new Set([
+  'ECONNRESET',
+  'EPIPE',
+  'ETIMEDOUT',
+  'ECONNREFUSED',
+  'UND_ERR_SOCKET',
+  'EPROTO',
+])
+
+function isTransient(err) {
+  const code = err?.code || ''
+  const msg = err?.message || ''
+  return TRANSIENT.has(code) || /socket hang up|ECONNRESET|timeout/i.test(msg)
+}
+
+function fetchOci(path, { accept = '*/*', timeout = 20000 } = {}, attempt = 1) {
+  const url = `https://oci.merida.gob.ve${path}`
+
+  return new Promise((resolve, reject) => {
+    const req = https.request(
+      url,
+      {
+        method: 'GET',
+        agent: ociAgent,
+        headers: {
+          Accept: accept,
+          'User-Agent': 'GOBME-dev-proxy',
+          Connection: 'close',
+        },
+        timeout,
+      },
+      (upstream) => {
+        const chunks = []
+        upstream.on('data', (chunk) => chunks.push(chunk))
+        upstream.on('end', () => {
+          resolve({
+            status: upstream.statusCode || 502,
+            headers: upstream.headers,
+            body: Buffer.concat(chunks),
+          })
+        })
+        upstream.on('error', reject)
+      }
     )
-  } catch {
-    /* ignore broken socket */
+
+    req.on('timeout', () => {
+      req.destroy(Object.assign(new Error('timeout'), { code: 'ETIMEDOUT' }))
+    })
+    req.on('error', reject)
+    req.end()
+  }).catch(async (err) => {
+    if (attempt < 3 && isTransient(err)) {
+      await new Promise((wait) => setTimeout(wait, 300 * attempt))
+      return fetchOci(path, { accept, timeout }, attempt + 1)
+    }
+    throw err
+  })
+}
+
+function sendJsonError(res, err) {
+  if (!res || res.writableEnded) return
+  const code = err?.code || err?.message
+  if (code === 'EAI_AGAIN' || code === 'ENOTFOUND') {
+    console.warn('[oci-proxy] DNS no resuelve oci.merida.gob.ve — usando fallback local')
+  } else {
+    console.warn('[oci-proxy]', code, '— reintentos agotados')
+  }
+  res.statusCode = 502
+  res.setHeader('Content-Type', 'application/json; charset=utf-8')
+  res.end(
+    JSON.stringify({
+      code: 'oci_unreachable',
+      message:
+        'No se pudo conectar con oci.merida.gob.ve (DNS/red). La app usará datos locales.',
+      detail: code,
+    })
+  )
+}
+
+function attachOciMiddleware(middlewares) {
+  middlewares.use(async (req, res, next) => {
+    if (req.method !== 'GET' || !req.url) return next()
+
+    // API JSON
+    if (req.url.startsWith('/oci-api')) {
+      const path = req.url.replace(/^\/oci-api/, '/wp-json/wp/v2')
+      try {
+        const upstream = await fetchOci(path, {
+          accept: 'application/json',
+          timeout: 12000,
+        })
+        for (const key of [
+          'content-type',
+          'x-wp-total',
+          'x-wp-totalpages',
+          'link',
+          'allow',
+        ]) {
+          const value = upstream.headers[key]
+          if (value) res.setHeader(key, value)
+        }
+        res.statusCode = upstream.status
+        res.end(upstream.body)
+      } catch (err) {
+        sendJsonError(res, err)
+      }
+      return
+    }
+
+    // Medios (imágenes) — evita bloqueo por certificado vencido
+    if (req.url.startsWith('/oci-media')) {
+      const path = req.url.replace(/^\/oci-media/, '') || '/'
+      try {
+        const upstream = await fetchOci(path, {
+          accept: 'image/*,*/*',
+          timeout: 25000,
+        })
+        const type = upstream.headers['content-type'] || 'application/octet-stream'
+        res.setHeader('Content-Type', type)
+        if (upstream.headers['cache-control']) {
+          res.setHeader('Cache-Control', upstream.headers['cache-control'])
+        } else {
+          res.setHeader('Cache-Control', 'public, max-age=86400')
+        }
+        if (upstream.headers['etag']) res.setHeader('ETag', upstream.headers['etag'])
+        res.statusCode = upstream.status
+        res.end(upstream.body)
+      } catch (err) {
+        console.warn('[oci-media]', err?.code || err?.message)
+        res.statusCode = 502
+        res.end()
+      }
+      return
+    }
+
+    return next()
+  })
+}
+
+function ociProxyPlugin() {
+  return {
+    name: 'oci-proxy',
+    configureServer(server) {
+      attachOciMiddleware(server.middlewares)
+    },
+    configurePreviewServer(server) {
+      attachOciMiddleware(server.middlewares)
+    },
   }
 }
 
 export default defineConfig({
-  plugins: [react()],
-  server: {
-    proxy: {
-      '/oci-api': {
-        target: 'https://oci.merida.gob.ve',
-        changeOrigin: true,
-        secure: false,
-        agent: ociAgent,
-        timeout: 10000,
-        proxyTimeout: 10000,
-        rewrite: (path) => path.replace(/^\/oci-api/, '/wp-json/wp/v2'),
-        configure: (proxy) => {
-          proxy.on('error', (err, _req, res) => {
-            const code = err.code || err.message
-            // Evitar spam: un log corto basta; el cliente ya hace fallback.
-            if (code === 'EAI_AGAIN' || code === 'ENOTFOUND') {
-              console.warn(
-                '[oci-proxy] DNS no resuelve oci.merida.gob.ve — usando fallback local'
-              )
-            } else {
-              console.warn('[oci-proxy]', code)
-            }
-            sendProxyError(res, err)
-          })
-        },
-      },
-    },
-  },
+  plugins: [react(), ociProxyPlugin()],
 })

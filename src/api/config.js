@@ -1,7 +1,7 @@
 /**
- * GOBME — sitio oficial.
- * Contenidos: WordPress OCI.
- * Logos/iconos locales desde gobernacion.merida.gob.ve (public/).
+- GOBME — sitio oficial.
+- Contenidos: WordPress OCI.
+- Logos/iconos locales desde gobernacion.merida.gob.ve (public/).
  */
 const isDev = import.meta.env.DEV
 
@@ -10,6 +10,30 @@ export const API = isDev
   : 'https://oci.merida.gob.ve/wp-json/wp/v2'
 
 export const OCI_SITE = 'https://oci.merida.gob.ve'
+
+/**
+ * El certificado de oci.merida.gob.ve puede estar vencido y el navegador
+ * bloquea las imágenes. Se sirven por mismo origen vía /oci-media.
+ */
+export function ociMediaUrl(url) {
+  if (!url || typeof url !== 'string') return url
+  try {
+    const absolute = new URL(url, OCI_SITE)
+    if (absolute.hostname !== 'oci.merida.gob.ve') return url
+    return `/oci-media${absolute.pathname}${absolute.search}`
+  } catch {
+    return url
+  }
+}
+
+/** Reescribe URLs absolutas de OCI dentro de HTML (contenido de posts). */
+export function rewriteOciHtml(html = '') {
+  if (!html) return html
+  return html.replace(
+    /https?:\/\/oci\.merida\.gob\.ve(\/[^"'\\s>]*)/gi,
+    '/oci-media$1'
+  )
+}
 
 export const ASSETS = {
   logoHorizontal: '/logos/logo-horizontal.png',
@@ -378,7 +402,7 @@ export function getFallbackSecretarias() {
         slug: meta.slug || `secretaria-${id}`,
         title: meta.title || 'Secretaría',
         excerpt: meta.excerpt || '',
-        content: `<p>${meta.excerpt || ''}</p>`,
+        content: '',
         link: meta.slug ? `https://gobernacion.merida.gob.ve/${meta.slug}/` : '#',
         short: meta.short || '',
         accent: meta.accent || 'var(--brand-blue)',
@@ -392,6 +416,37 @@ export function getFallbackSecretarias() {
   } catch (err) {
     console.warn('[config] Error al generar fallback de secretarías:', err)
     return []
+  }
+}
+
+/** Datos locales de respaldo para Noticias/Posts si la OCI falla */
+export function getFallbackPosts() {
+  return [
+    {
+      id: 99991,
+      date: new Date().toISOString(),
+      slug: 'gobernacion-impulsa-desarrollo-merida',
+      title: { rendered: 'Gobernación del Estado Bolivariano de Mérida fortalece atención social' },
+      excerpt: { rendered: 'El Ejecutivo regional continúa desplegado en los municipios consolidando las políticas de bienestar y desarrollo integral para el pueblo merideño.' },
+      content: { rendered: '<p>El Ejecutivo regional continúa desplegado en los municipios consolidando las políticas de bienestar y desarrollo integral para el pueblo merideño bajo las líneas de transformación orientadas por la gestión.</p>' },
+      link: '#',
+      offline: true,
+      _embedded: {
+        'wp:featuredmedia': [{ source_url: '/hero.jpg' }]
+      }
+    }
+  ]
+}
+
+/** Utilidad global para peticiones con respaldo automático ante caídas de red (ECONNRESET) */
+export async function fetchWithFallback(url, options = {}, fallbackData = []) {
+  try {
+    const response = await fetch(url, options)
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+    return await response.json()
+  } catch (error) {
+    console.warn(`[API Fallback] Servidor OCI inaccesible (${url}). Usando datos locales.`, error.message)
+    return typeof fallbackData === 'function' ? fallbackData() : fallbackData
   }
 }
 

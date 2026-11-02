@@ -1602,12 +1602,12 @@ h3 {
 
 /* Detail pages */
 .page-detail {
-  padding: 2.5rem 0 4rem;
+  padding: 1.25rem 0 4rem;
 }
 
 .page-detail .back {
   display: inline-block;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   font-weight: 600;
   text-decoration: none;
 }
@@ -2081,8 +2081,8 @@ h3 {
 
 .resena-hero {
   position: relative;
-  margin-bottom: 3rem;
-  padding: 2rem 0 2.25rem;
+  margin-bottom: 2rem;
+  padding: 0.75rem 0 1.5rem;
   max-width: 52rem;
 }
 
@@ -2158,9 +2158,10 @@ h3 {
   position: relative;
   z-index: 1;
   display: grid;
-  place-items: center;
+  place-items: start center;
   width: 2.4rem;
-  height: 2.4rem;
+  height: auto;
+  padding-top: 1.25rem;
 }
 
 .resena-timeline-marker span {

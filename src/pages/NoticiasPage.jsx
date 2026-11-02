@@ -16,10 +16,16 @@ export function NoticiasPage() {
     setError(null)
 
     getPosts(page)
-      .then(({ posts: data, totalPages: pages }) => {
+      .then(({ posts: data, totalPages: pages, offline: isOffline, error: apiError }) => {
         if (cancelled) return
         setPosts(data)
         setTotalPages(pages)
+        if (isOffline) {
+          setError(
+            apiError ||
+              'OCI no está disponible ahora (red/DNS). Las noticias se cargarán cuando vuelva la conexión.'
+          )
+        }
       })
       .catch((err) => {
         if (!cancelled) {

@@ -4,6 +4,8 @@ import {
   SECRETARIA_META,
   PER_PAGE,
   getFallbackSecretarias,
+  ociMediaUrl,
+  rewriteOciHtml,
 } from './config.js'
 
 const ociWarned = new Set()
@@ -22,7 +24,11 @@ function networkMessage(err) {
   return detail
 }
 
-async function request(url) {
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+async function requestOnce(url) {
   let res
   try {
     res = await fetch(url, {
@@ -51,7 +57,7 @@ async function request(url) {
     err.network =
       res.status >= 500 ||
       code === 'oci_unreachable' ||
-      /DNS|red|OCI no está disponible|oci_unreachable/i.test(detail)
+      /DNS|red|OCI no está disponible|oci_unreachable|hang up/i.test(detail)
     throw err
   }
 
@@ -71,6 +77,20 @@ async function request(url) {
     totalPages: Number(res.headers.get('X-WP-TotalPages') || 1),
     total: Number(res.headers.get('X-WP-Total') || 0),
   }
+}
+
+async function request(url) {
+  let lastError
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      return await requestOnce(url)
+    } catch (err) {
+      lastError = err
+      if (!err.network || attempt === 3) throw err
+      await sleep(300 * attempt)
+    }
+  }
+  throw lastError
 }
 
 function stripHtml(html = '') {
@@ -143,7 +163,7 @@ export function parseSecretariaContent(html = '') {
       relatedNews.push({
         title: decodeEntities(title).trim(),
         href,
-        image,
+        image: ociMediaUrl(image),
         dateLabel,
       })
     }
@@ -329,6 +349,18 @@ export async function getPost(id) {
   }
 }
 
+function featuredImage(media) {
+  if (!media) return null
+  const sizes = media?.media_details?.sizes || {}
+  const preferred =
+    sizes.medium_large?.source_url ||
+    sizes.large?.source_url ||
+    sizes.medium?.source_url ||
+    media.source_url ||
+    null
+  return ociMediaUrl(preferred)
+}
+
 function normalizePost(post) {
   try {
     const media = post?._embedded?.['wp:featuredmedia']?.[0]
@@ -337,10 +369,10 @@ function normalizePost(post) {
       slug: post?.slug,
       title: stripHtml(post?.title?.rendered || ''),
       excerpt: stripHtml(post?.excerpt?.rendered || ''),
-      content: post?.content?.rendered || '',
+      content: rewriteOciHtml(post?.content?.rendered || ''),
       date: post?.date,
       link: post?.link,
-      image: media?.source_url || null,
+      image: featuredImage(media),
       imageAlt: media?.alt_text || stripHtml(post?.title?.rendered || ''),
     }
   } catch (err) {

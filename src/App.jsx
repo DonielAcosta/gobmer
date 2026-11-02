@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Header } from './components/Header.jsx'
 import { Footer } from './components/Footer.jsx'
+import { ScrollToTop } from './components/ScrollToTop.jsx'
 import { Home } from './pages/Home.jsx'
 import { NoticiasPage } from './pages/NoticiasPage.jsx'
 import { PostDetail } from './pages/PostDetail.jsx'
@@ -11,6 +12,7 @@ import { ResenaHistorica } from './pages/ResenaHistorica.jsx'
 export default function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Header />
       <main className="layout-main">
         <Routes>
